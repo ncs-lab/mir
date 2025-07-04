@@ -4,6 +4,8 @@ import uuid
 
 client = TestClient(app)
 
+# Testing should be against a dedicated database or a docker instance of postgresql, for simplicty we test in prod
+
 def random_email():
     return f"user_{uuid.uuid4().hex[:8]}@example.com"
 
