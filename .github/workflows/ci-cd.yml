@@ -28,6 +28,7 @@ jobs:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       run: pytest app/tests/
 
+    #TBD
     - name: Setup gcloud
       uses: google-github-actions/setup-gcloud@v1
       with:
@@ -37,7 +38,7 @@ jobs:
 
     # The building process should be handled better with dynamic tags etc but lets keep it simple
     - name: Docker auth
-      run: gcloud auth configure-docker europe-west3-docker.pkg.dev
+      run: echo "$GCP_SA_KEY" > ./google-credentials.json && gcloud auth login --brief --cred-file=./google-credentials.json --update-adc gcloud auth configure-docker --quiet
 
     - name: Build image
       run: docker build -t europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:$GITHUB_SHA .
