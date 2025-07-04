@@ -38,13 +38,16 @@ jobs:
 
     # The building process should be handled better with dynamic tags etc but lets keep it simple
     - name: Docker auth
-      run: echo "$GCP_SA_KEY" > ./google-credentials.json && gcloud auth login --brief --cred-file=./google-credentials.json --update-adc gcloud auth configure-docker --quiet
+      run: |
+        echo "${{ secrets.GCP_SA_KEY }}" > "${HOME}/gcloud-key.json"
+        gcloud auth activate-service-account --key-file="${HOME}/gcloud-key.json"
+        gcloud auth configure-docker europe-west3-docker.pkg.dev --quiet
 
     - name: Build image
-      run: docker build -t europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:$GITHUB_SHA .
+      run: docker build -t europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:${GITHUB_SHA} .
 
     - name: Push image
-      run: docker push europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:$GITHUB_SHA
+      run: docker push europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:${GITHUB_SHA}
 
     - name: Get creds
       run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone europe-west3-a
@@ -57,5 +60,5 @@ jobs:
 
     - name: Deploy
       run: |
-        kubectl set image deployment/mir-test mir-test=europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:$GITHUB_SHA
+        kubectl set image deployment/mir-test mir-test=europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:${GITHUB_SHA}
         kubectl rollout status deployment/mir-test
