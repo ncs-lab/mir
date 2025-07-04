@@ -31,21 +31,19 @@ jobs:
     - name: Setup gcloud
       uses: google-github-actions/setup-gcloud@v1
       with:
-        # Project ID hardcoded for simplicity, but better to keep dynamic
         project_id: testproject-464712
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         export_default_credentials: true
 
+    # The building process should be handled better with dynamic tags etc but lets keep it simple
     - name: Docker auth
-      run: gcloud auth configure-docker
-
-      # There should be a better logic to handle images yet we keep it simple
+      run: gcloud auth configure-docker europe-west3-docker.pkg.dev
 
     - name: Build image
-      run: docker build -t gcr.io/testproject-464712/mir-test:$GITHUB_SHA .
+      run: docker build -t europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:$GITHUB_SHA .
 
     - name: Push image
-      run: docker push gcr.io/testproject-464712/mir-test:$GITHUB_SHA
+      run: docker push europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:$GITHUB_SHA
 
     - name: Get creds
       run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone europe-west3-a
@@ -58,5 +56,5 @@ jobs:
 
     - name: Deploy
       run: |
-        kubectl set image deployment/mir-test mir-test=gcr.io/testproject-464712/mir-test:$GITHUB_SHA
+        kubectl set image deployment/mir-test mir-test=europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:$GITHUB_SHA
         kubectl rollout status deployment/mir-test
