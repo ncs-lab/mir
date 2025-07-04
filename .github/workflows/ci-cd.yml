@@ -16,7 +16,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.12'
 
     - name: Install deps
       run: |
@@ -38,6 +38,8 @@ jobs:
 
     - name: Docker auth
       run: gcloud auth configure-docker
+
+      # There should be a better logic to handle images yet we keep it simple
 
     - name: Build image
       run: docker build -t gcr.io/testproject-464712/mir-test:$GITHUB_SHA .
