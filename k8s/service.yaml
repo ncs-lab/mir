@@ -1,0 +1,16 @@
+#not applied since there is not any kind of auth, test with curl in pod
+apiVersion: v1
+kind: Service
+metadata:
+  name: mir-test-service
+  annotations:
+    cloud.google.com/load-balancer-type: "External" # optional but explicit
+spec:
+  type: LoadBalancer # Get a public IP
+  selector:
+    app: mir-test
+  ports:
+  - protocol: TCP
+    port: 80          
+    targetPort: 8000  
+  sessionAffinity: None

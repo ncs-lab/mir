@@ -10,22 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Checkout the repository
     - name: Checkout
       uses: actions/checkout@v3
 
+    # Setup Python for running tests
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.12'
 
+    # Install Python dependencies
     - name: Install deps
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    # Run tests
     - name: Test
       env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }} # this should be a VPC address
       run: pytest app/tests/
 
     #TBD
@@ -46,14 +50,15 @@ jobs:
         gcloud auth configure-docker europe-west3-docker.pkg.dev --quiet
 
     - name: Build image
-      run: docker build -t europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:${GITHUB_SHA} .
+      run: docker build -t europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:latest .
 
     - name: Push image
-      run: docker push europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:${GITHUB_SHA}
+      run: docker push europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:latest
 
     - name: Get creds
-      run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --zone europe-west3-a
+      run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --region europe-west3
 
+    # Create or update Kubernetes secret for DATABASE_URL
     - name: Create secret
       run: |
         kubectl create secret generic db-url-secret \
@@ -62,5 +67,5 @@ jobs:
 
     - name: Deploy
       run: |
-        kubectl set image deployment/mir-test mir-test=europe-west3-docker.pkg.dev/testproject-464712/mir-test-repo/mir-test:${GITHUB_SHA}
+        kubectl apply -f k8s/deployment.yaml
         kubectl rollout status deployment/mir-test
