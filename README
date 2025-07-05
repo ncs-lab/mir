@@ -24,6 +24,7 @@ Ogni push sul branch `main`:
 - Variabili segrete configurate su GitHub:
   - `GCP_SA_KEY` → JSON della service account
   - `DATABASE_URL` → stringa connessione PostgreSQL
+  - `DATABASE_URL_TEST` → stringa connessione PostgreSQL di test
   - `GKE_CLUSTER_NAME` → nome del cluster GKE
   - `GKE_CLUSTER_ZONE` → zona (es. `europe-west3-a`) - OPTIONAL NOT DONE
 
@@ -42,7 +43,7 @@ pip install -r requirements.txt
 
 ### Test 
 
-export DATABASE_URL=postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DBNAME> (This should be not the prod db url)
+export DATABASE_URL_TEST=postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DBNAME> (This should be not the prod db url)
 
 pytest app/tests/
 
