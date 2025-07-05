@@ -59,11 +59,9 @@ jobs:
       run: gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} --region europe-west3
 
     - name: Install gke-gcloud-auth-plugin
-      run: |
-        curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/gke-gcloud-auth-plugin
-        chmod +x gke-gcloud-auth-plugin
-        sudo mv gke-gcloud-auth-plugin /usr/local/bin/
+      run: gcloud components install gke-gcloud-auth-plugin --quiet
 
+    # Create or update Kubernetes secret for DATABASE_URL
     - name: Create secret
       run: |
         kubectl create secret generic db-url-secret \
